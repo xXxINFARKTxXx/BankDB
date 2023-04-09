@@ -19,7 +19,9 @@ int main(int argc, char const* argv[])
     }
     t->startClientListening();
     std::cout << t->getClientMessage() << std::endl;
-    t->sendClientMessage("Hello from server");
+    pqxx::work work1(*t->getDatabaseConnection());
+    pqxx::result res = work1.exec(t->getClientMessage());
+    t->sendClientMessage(std::to_string(res.begin()[0].as<int>()));
 
     delete t;
     return 0;
