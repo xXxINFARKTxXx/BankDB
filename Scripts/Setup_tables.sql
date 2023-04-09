@@ -5,21 +5,10 @@ DROP TABLE IF EXISTS accounts CASCADE;
 DROP TABLE IF EXISTS transfers CASCADE;
 DROP SEQUENCE IF EXISTS accounts_id_seq;
 
-
-
-
 -- takes string from app, registrate it ID and type of operarion
 -- 0 - registration of user's bank account
 -- 1 - registration of user's debit account
 -- 2 - conduct money transfere 
-CREATE TABLE transactions (
-	id 						serial NOT NULL CONSTRAINT transactions_id_pkey PRIMARY KEY,
-	json_string 			text NOT NULL,
-	type_of_transaction 	int NOT NULL,
-	json_content			jsonb DEFAULT NULL 
-							CONSTRAINT transactions_json_not_null CHECK(json_content IS NOT NULL),
-	time_of_transaction		timestamp DEFAULT NOW()
-);
 
 CREATE TABLE user_data (
 	passport_id 				bigint CONSTRAINT user_data_passport_id_unique_pkey PRIMARY KEY UNIQUE,
