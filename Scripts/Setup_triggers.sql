@@ -38,19 +38,19 @@ CREATE OR REPLACE TRIGGER add_user
 	EXECUTE PROCEDURE create_user_acc();
 	
 	
-CREATE OR REPLACE FUNCTION make_transaction()
-	RETURN TRIGGER
-	LANGUAGE PLPGSQL
-AS $$
-DECLARE
-BEGIN
--- 	NEW.json_content := SELECT cast(NEW.json_string) from transactions;
-	RETURN NULL;
-END;
-$$;
+-- CREATE OR REPLACE FUNCTION make_transaction()
+-- 	RETURN TRIGGER
+-- 	LANGUAGE PLPGSQL
+-- AS $$
+-- DECLARE
+-- BEGIN
+-- -- 	NEW.json_content := SELECT cast(NEW.json_string) from transactions;
+-- 	RETURN NULL;
+-- END;
+-- $$;
 
-CREATE OR REPLACE TRIGGER conduct_transaction()
-	AFTER INSERT
-	ON transactions
-	FOR EACH ROW
-	EXECUTE PROCEDURE make_transaction();
+-- CREATE OR REPLACE TRIGGER conduct_transaction()
+-- 	AFTER INSERT
+-- 	ON transactions
+-- 	FOR EACH ROW
+-- 	EXECUTE PROCEDURE make_transaction();
