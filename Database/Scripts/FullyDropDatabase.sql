@@ -1,0 +1,29 @@
+ALTER TABLE IF EXISTS users
+DROP CONSTRAINT IF EXISTS users_login_uniqueness;
+ALTER TABLE IF EXISTS users
+DROP CONSTRAINT IF EXISTS users_user_id_fkey;
+
+ALTER TABLE IF EXISTS accounts
+DROP CONSTRAINT IF EXISTS accounts_pkey CASCADE;
+ALTER TABLE IF EXISTS accounts
+DROP CONSTRAINT IF EXISTS accounts_user_id_fkey;
+
+ALTER TABLE IF EXISTS transfers
+DROP CONSTRAINT IF EXISTS transfers_amount_check;
+ALTER TABLE IF EXISTS transfers
+DROP CONSTRAINT IF EXISTS transfers_id_pkey;
+ALTER TABLE IF EXISTS transfers
+DROP CONSTRAINT IF EXISTS transfers_from_id_fkey;
+ALTER TABLE IF EXISTS transfers
+DROP CONSTRAINT IF EXISTS transfers_to_id_fkey;
+
+ALTER TABLE IF EXISTS user_data
+DROP CONSTRAINT IF EXISTS user_data_passport_id_unique_pkey;
+
+DROP SCHEMA IF EXISTS public CASCADE;
+CREATE SCHEMA public;
+
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO public;
+
+DROP DATABASE IF EXISTS bank WITH (FORCE);

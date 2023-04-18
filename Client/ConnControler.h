@@ -12,6 +12,8 @@
 #include <unistd.h>
 #include <iostream>
 
+#define BUFLEN 16384
+
 
 struct ConnControler {
 
@@ -39,8 +41,8 @@ struct ConnControler {
     }
 
     [[nodiscard]] std::string getMessage() const {
-        char tmp[1024]{};
-        recv(client_fd, tmp, 1024, MSG_PEEK);
+        char tmp[BUFLEN]{};
+        read(client_fd, tmp, BUFLEN);
         return std::string {tmp};
     }
 

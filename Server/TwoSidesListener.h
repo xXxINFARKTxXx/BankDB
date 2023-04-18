@@ -15,13 +15,13 @@
 #include <stdexcept>
 #include <pqxx/pqxx>
 
-#define BUFLEN 2048
+#define BUFLEN 16384
 
 struct TwoSidesListener {
 
     explicit TwoSidesListener(unsigned port, const std::string &dataBaseIP,
                                                 unsigned databasePort);
-    void startClientListening();
+    void findClient();
 
     std::string getClientMessage();
 

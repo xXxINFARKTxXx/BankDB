@@ -1,27 +1,110 @@
-// TwoSidesListener side C/C++ program to demonstrate Socket
-// programming
-
 #define SERV_PORT 8080
 #define DB_PORT 5432
-#define DB_IP_ADDRESS "192.168.0.26"
+#define DB_IP_ADDRESS "127.0.0.1"
 
 #include "TwoSidesListener.h"
-#include <iostream>
+#include "RequestManager.h"
 
-int main(int argc, char const* argv[])
-{
+using json = nlohmann::json;
+
+int main() {
     TwoSidesListener *t{};
     try {
-        t = new TwoSidesListener (SERV_PORT, DB_IP_ADDRESS, DB_PORT);
+        t = new TwoSidesListener(SERV_PORT, DB_IP_ADDRESS, DB_PORT);
     }
     catch (std::exception &e) {
-        std::cout << e.what() << std::endl; return 1;
+        std::cout << e.what() << std::endl;
+        return 1;
     }
-    t->startClientListening();
-    std::cout << t->getClientMessage() << std::endl;
-    pqxx::work work1(*t->getDatabaseConnection());
-    pqxx::result res = work1.exec(t->getClientMessage());
-    t->sendClientMessage(std::to_string(res.begin()[0].as<int>()));
+
+    t->findClient();
+
+    while (true) {
+        std::string requeststr = t->getClientMessage();
+        if(requeststr.empty()) {
+            t->findClient();
+        } else
+        try {
+//            std::cout << std::endl << "\"_" << requeststr << "_\""  << std::endl;
+            json clientRequest = json::parse(requeststr);
+
+            switch ((int) clientRequest["type"]) {
+                case 0: { // authentication
+                    try{
+                        t->sendClientMessage(RequestManager::authCheck(clientRequest, t));
+                    }
+                    catch (std::exception &e) {
+                        std::cout << "0:   " << e.what();
+                        exit(1);
+                    }
+                    break;
+                }
+                case 1: { // registration
+                    try{
+                        t->sendClientMessage(RequestManager::registration(clientRequest, t));
+                    }
+                    catch (std::exception &e) {
+                        std::cout << "1:   " << e.what();
+                        exit(1);
+                    }
+                    break;
+                }
+                case 2: { // conduct transfer
+                    try{
+                        t->sendClientMessage(RequestManager::conductTranfer(clientRequest, t));
+                    }
+                    catch (std::exception &e) {
+                        std::cout << "2:   " << e.what();
+                        exit(1);
+                    }
+                    break;
+                }
+                case 3: { // open new debit account
+                    try{
+                        t->sendClientMessage(RequestManager::createDebitAcc(clientRequest, t));
+                    }
+                    catch (std::exception &e) {
+                        std::cout << "3:   " << e.what();
+                        exit(1);
+                    }
+                    break;
+                }
+                case 4: { // close debit account
+                    try{
+                        t->sendClientMessage(RequestManager::deleteDebitAcc(clientRequest, t));
+                    }
+                    catch (std::exception &e) {
+                        std::cout << "4:   " << e.what();
+                        exit(1);
+                    }
+                    break;
+                }
+                case 5: { // get information about debit accounts
+                    try{
+                        t->sendClientMessage(RequestManager::getDebitAccsInfo(clientRequest, t));
+                    }
+                    catch (std::exception &e) {
+                        std::cout << "5:   " << e.what();
+                        exit(1);
+                    }
+                    break;
+                }
+                case 6: { // get information about bank account
+                    try{
+                        t->sendClientMessage(RequestManager::getBankAccInfo(clientRequest, t));
+                    }
+                    catch (std::exception &e) {
+                        std::cout << "6:   " << e.what();
+                        exit(1);
+                    }
+                    break;
+                }
+            }
+        }
+        catch (std::exception &e) {
+            std::cout << e.what();
+        }
+    }
 
     delete t;
     return 0;

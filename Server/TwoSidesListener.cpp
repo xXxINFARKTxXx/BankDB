@@ -1,7 +1,6 @@
 //
 // Created by vladimir on 9.4.23..
 //
-
 #include "TwoSidesListener.h"
 
 TwoSidesListener::TwoSidesListener(const unsigned port, const std::string &dataBaseIP,
@@ -38,7 +37,7 @@ TwoSidesListener::TwoSidesListener(const unsigned port, const std::string &dataB
     }
 }
 
-void TwoSidesListener::startClientListening() {
+void TwoSidesListener::findClient() {
     if (listen(server_fd, 3) < 0) {
         throw std::runtime_error("Error listening\n");
     }
@@ -52,8 +51,9 @@ void TwoSidesListener::startClientListening() {
 
 std::string TwoSidesListener::getClientMessage() {
     char tempBuffer[BUFLEN]{};
-    if (recv(new_socket, tempBuffer, BUFLEN, MSG_PEEK) < 0)
+    if (read(new_socket, tempBuffer, BUFLEN) < 0)
         throw std::runtime_error("Error reading\n");
+
     return std::string{tempBuffer};
 }
 
