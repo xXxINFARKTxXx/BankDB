@@ -239,10 +239,59 @@ struct RequestManager {
     }
 
     static std::string deleteDebitAcc(json &clientRequest, TwoSidesListener *pListener) {
-        return std::string{};
+        pqxx::nontransaction getAccount{*pListener->getDatabaseConnection()};
+
+        std::string databaseRequest {"SELECT user_id, account_id FROM accounts "
+                                     "WHERE user_id = " + clientRequest["user_id"].get<std::string>() + " AND " +
+                                     "account_id = " + clientRequest["account_id"].get<std::string>()
+        };
+        pqxx::result res = getAccount.exec(databaseRequest);
+
+        getAccount.commit();
+
+        if(res.empty()) return R"({"result": false})";
+
+        pqxx::work deleteAcc{*pListener->getDatabaseConnection()};
+
+        deleteAcc.exec("DELETE FROM accounts "
+                       "WHERE user_id = " + clientRequest["user_id"].get<std::string>() + " AND " +
+                       "account_id = " + clientRequest["account_id"].get<std::string>());
+        deleteAcc.commit();
+
+        return R"({"result": true})";
     }
 
     static std::string getDebitAccsInfo(json &clientRequest, TwoSidesListener *pListener) {
+
+        pqxx::nontransaction getDebitAccsInfo(*pListener->getDatabaseConnection());
+
+        std::string fieldNames[] {};
+
+        json answer = json::array();
+
+        std::string request{
+            "SELECT * FROM accounts "
+            "WHERE user_id = " + std::to_string(clientRequest["user_id"].get<long long>())
+        };
+
+        auto info = getDebitAccsInfo.exec(request);
+
+        int i{};
+        for(auto row: info) {
+
+            json account {
+                  {
+                      {"account_number", (row.begin() + 0).as<std::string>()},
+                      {"deposit", (row.begin() + 2).as<std::string>()},
+                      {"date_and_time_of_opening", (row.begin() + 3).as<std::string>()}
+                  }
+            };
+            answer.insert(answer.end(), account);
+            i++;
+        }
+
+        pListener->sendClientMessage(answer.dump());
+
         return std::string{};
     }
 
@@ -251,10 +300,34 @@ struct RequestManager {
      < {"accounts", []}
      */
     static std::string getBankAccInfo(json &clientRequest, TwoSidesListener *pListener) {
+        pqxx::nontransaction getBankAccInfo(*pListener->getDatabaseConnection());
+
+        auto res = getBankAccInfo.exec(
+                    "SELECT * "
+                    "FROM user_data "
+                    "WHERE passport_id = " + clientRequest["user_id"].get<std::string>()
+                ).begin();
+
+        json answer {
+                {"name",                    (res.begin() + 1).as<std::string>()},
+                {"surname",                 (res.begin() + 2).as<std::string>()},
+                {"last_name",               (res.begin() + 3).as<std::string>()},
+                {"sex",                     (res.begin() + 4).as<std::string>()},
+                {"date_of_birth",           (res.begin() + 5).as<std::string>()},
+                {"place_of_birth",          (res.begin() + 6).as<std::string>()},
+                {"country",                 (res.begin() + 7).as<std::string>()},
+                {"passport_date_of_issue",  (res.begin() + 8).as<std::string>()},
+                {"passport_date_of_expire", (res.begin() + 9).as<std::string>()},
+                {"passport_place_of_issue", (res.begin() + 10).as<std::string>()},
+                {"passport_authority",      (res.begin() + 11).as<std::string>()},
+                {"address_of_living",        (res.begin() + 12).as<std::string>()},
+                {"email",                   (res.begin() + 13).as<std::string>()}
+        };
+
+        pListener->sendClientMessage(answer.dump());
 
         return std::string{};
     }
 };
-
 
 #endif //SERVER_REQUESTMANAGER_H

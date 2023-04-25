@@ -11,6 +11,7 @@
 #include <nlohmann/json.hpp>
 #include <boost/algorithm/string.hpp>
 #include <limits>
+#include <iomanip>
 
 #define BAD_RESULT (R"({ "result": false })")
 
@@ -32,14 +33,14 @@ struct Interactor {
         std::string option;
 
         while (true) {
-            std::cout << "Welcome! Do you have account? y\\n : ";
+            std::cout << "Welcome! Do you have account? y\\n\\exit: ";
             std::cin >> option;
             if (option == "y" || option == "yes" || option == "Y" || option == "YES") {
                 auto res = json::parse(authentication(conContr));
 
                 if (res["result"]) {
                     std::cout << "Authentication success" << std::endl;
-                    std::cout << "Welcome, " << res["name"].get<std::string>() << " "
+                    std::cout << std::endl << "Welcome, " << res["name"].get<std::string>() << " "
                               << res["surname"].get<std::string>() << "!" << std::endl;
                     res.erase("result");
                     return res;
@@ -48,10 +49,10 @@ struct Interactor {
                 }
             } else if (option == "n" || option == "no" || option == "N" || option == "NO") {
                 auto res = json::parse(registration(conContr));
-                std::cout << res << std::endl;
+
                 if (res["result"]) {
                     std::cout << "Registration success\n";
-                    std::cout << "Welcome aboard, " << res["name"].get<std::string>() << " "
+                    std::cout << std::endl << "Welcome aboard, " << res["name"].get<std::string>() << " "
                               << res["surname"].get<std::string>() << "!" << std::endl;
                     std::cout << "Your login is " << res["login"].get<std::string>() << " and password is "
                               << res["password"].get<std::string>() << std::endl;
@@ -60,7 +61,14 @@ struct Interactor {
                 } else {
                     std::cout << "Wrong personal data input!\n";
                 }
-            } else std::cout << "Wrong option\n";
+            } else if (option == "exit") {
+                std::cout << "See ya!\n";
+                return json{};
+            }else {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cout << "Wrong option\n";
+            }
         }
     }
 
@@ -257,9 +265,74 @@ struct Interactor {
 
     }
 
-    static void createAcc(const json &user, const ConnControler &connControler) {
-        connControler.sendMessage(json {{"type", 3}, {"user_id", user["user_id"].get<long long>()}}.dump());
-        std::cout <<"Your new account ID number:" << json::parse(connControler.getMessage())["account_id"].get<long long>() << std::endl;
+    static void createAcc(const json &user, const ConnControler &conContr) {
+        conContr.sendMessage(json {{"type", 3}, {"user_id", user["user_id"].get<long long>()}}.dump());
+        std::cout << "Your new account ID number:" << json::parse(conContr.getMessage())["account_id"].get<long long>() << std::endl;
+    }
+
+
+    static void getDebitAccsInfo(const json &user, const ConnControler &conContr) {
+        conContr.sendMessage(json {{"type", 5}, {"user_id", user["user_id"].get<long long>()}}.dump());
+        json answer = json::parse(conContr.getMessage());
+        answer.empty();
+        if(answer.empty())
+            std::cout << "You have no accounts" << std::endl;
+        else {
+            int i{};
+            for (auto &it: answer) {
+                std::cout << "Account № " << std::left << std::setw(3) << ++i <<
+                          "\tAccount number: " << std::left << it[0]["account_number"].get<std::string>() <<
+                          "\tDeposit: " << std::left << std::setw(10) << it[0]["deposit"].get<std::string>() <<
+                          "\tDate and time of opening: " << std::left << std::setw(25) << it[0]["date_and_time_of_opening"].get<std::string>().erase(19);
+                std::cout << std::endl;
+            }
+        }
+    }
+
+    static void getAccountInfo(const json &user, const ConnControler &conContr) {
+        std::string request = json{
+                {"type", 6},
+                {"user_id", std::to_string(user["user_id"].get<long long>())}
+        }.dump();
+        conContr.sendMessage(request);
+        json answer = json::parse(conContr.getMessage());
+        std::cout << std::endl << "Name: \t\t\t\t" << answer["name"].get<std::string>()<< std::endl;
+        std::cout << "Surname: \t\t\t" << answer["surname"].get<std::string>()<< std::endl;
+        std::cout << "Last name: \t\t\t" << answer["last_name"].get<std::string>()<< std::endl;
+        std::cout << "Sex: \t\t\t\t" << (answer["sex"].get<std::string>() == "f" ? "female" : "male") << std::endl;
+        std::cout << "Date of birth: \t\t\t" << answer["date_of_birth"].get<std::string>()<< std::endl;
+        std::cout << "Place of birth: \t\t" << answer["place_of_birth"].get<std::string>()<< std::endl;
+        std::cout << "Country: \t\t\t" << answer["country"].get<std::string>()<< std::endl;
+        std::cout << "Passport date of issue: \t" << answer["passport_date_of_issue"].get<std::string>()<< std::endl;
+        std::cout << "Passport date of expire: \t" << answer["passport_date_of_expire"].get<std::string>()<< std::endl;
+        std::cout << "Passport place of issue: \t" << answer["passport_place_of_issue"].get<std::string>()<< std::endl;
+        std::cout << "Passport authority: \t\t" << answer["passport_authority"].get<std::string>()<< std::endl;
+        std::cout << "Address_of_living: \t\t" << answer["address_of_living"].get<std::string>()<< std::endl;
+        std::cout << "Email: \t\t\t\t" << answer["email"].get<std::string>()<< std::endl;
+    }
+
+    static void deleteDebitAcc(const json &user, const ConnControler &conContr) {
+        std::string account_id;
+        std::cout << "Enter ID of account, that you would like to close" << std::endl;
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::getline(std::cin, account_id);
+
+        std::string request = json{
+                {"type", 4},
+                {"user_id", std::to_string(user["user_id"].get<long long>())},
+                {"account_id", account_id},
+        }.dump();
+
+        conContr.sendMessage(request);
+
+        if(json::parse(conContr.getMessage())["result"].get<bool>()) {
+            std::cout << "Your account successfully deleted!" << std::endl;
+            return;
+        } else {
+            std::cout << "Account not found!" << std::endl;
+        }
+
     }
 private:
 };

@@ -1,1 +1,3 @@
 CREATE DATABASE bank TEMPLATE template0;
+
+ALTER DATABASE bank SET datestyle TO "ISO, DMY";

@@ -17,7 +17,7 @@ BEGIN
 
 		SELECT COUNT(*) 
 		FROM logins INTO logcheck 
-			WHERE login = tempLogin;
+			WHERE logins.login = tempLogin;
 			
 		if logcheck = 0 then
 			myKey := 0;

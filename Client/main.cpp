@@ -10,17 +10,60 @@ int main(int argc, char const* argv[])
 
     json user = Interactor::welcome(contr);
 
-    Interactor::createAcc(user, contr);
+    if(user.empty()) return 0;
 
-    Interactor::conductTransfere(user, contr);
+    for(;;) {
+        int option;
+        std::cout << std::endl << std::endl << "Menu" << std::endl <<
+                     "Conduct transfer...........................1" << std::endl <<
+                     "Open new debit acc.........................2" << std::endl <<
+                     "Close debit account........................3" << std::endl <<
+                     "Get information about all debit accounts...4" << std::endl <<
+                     "Get information about bank account.........5" << std::endl <<
+                     "Exit...6" << std::endl <<
+                     "Choose option: ";
+        std::cin >> option;
 
-    return 0;
+        switch (option) {
+            case 1: {
+                Interactor::conductTransfere(user, contr);
+                break;
+            }
+            case 2: {
+                Interactor::createAcc(user, contr);
+                break;
+            }
+            case 3: {
+                Interactor::deleteDebitAcc(user, contr);
+                break;
+            }
+            case 4: {
+                Interactor::getDebitAccsInfo(user, contr);
+                break;
+            }
+            case 5: {
+                Interactor::getAccountInfo(user, contr);
+                break;
+            }
+            case 6: {
+                std::cout << "See ya!\n";
+                return 0;
+            }
+            default:{
+                std::cout << "Wrong option!\n";
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            }
+        }
+    }
 }
 
 /*
 y
-KQRkbeCEwAFSPmAlYKQ7
-Q6nlueQ9AWKK3FDvP9b5
+RZ49rXZuKtjycoPI9Ca1
+9SOpaTtxDErHlDuPsjHg
+1000000000000286
+
  0
 1000000000000165
  -5000

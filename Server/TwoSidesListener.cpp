@@ -66,7 +66,6 @@ TwoSidesListener::~TwoSidesListener() {
     close(new_socket);
     // closing the listening socket
     shutdown(server_fd, SHUT_RDWR);
-    // closing DB connection
-    pgsql->disconnect();
+
     delete pgsql;
 }

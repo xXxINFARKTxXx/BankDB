@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <stdexcept>
 #include <pqxx/pqxx>
+#include <pqxx/connection>
 
 #define BUFLEN 16384
 
