@@ -4,38 +4,19 @@
 
 #include "TwoSidesListener.h"
 #include "RequestManager.h"
+#include <pthread.h>
 
 using json = nlohmann::json;
 
-void clientHandling() {
-
-}
-
-int main() {
-    TwoSidesListener *t{};
-    try {
-        t = new TwoSidesListener(SERV_PORT, DB_IP_ADDRESS, DB_PORT);
-    }
-    catch (std::exception &e) {
-        std::cout << e.what() << std::endl;
-        return 1;
-    }
-
-    t->startListening();
-    std::cout << "Starting listening..." << std::endl;
-    t->acceptClient();
-    std::cout << "Client found" << std::endl;
-
-    while (true) {
-        std::string requeststr = t->getClientMessage();
-        if(requeststr.empty()) {
-            std::cout << "Connection broken." << std::endl;
-            std::cout << "Waiting for clients..." << std::endl;
-            t->acceptClient();
-            std::cout << "Client found" << std::endl;
-        } else
+void* clientHandling(void* pListener) {
+    auto *t = (TwoSidesListener*) pListener;
+    json clientRequest{};
+    std::string requeststr{};
+    while(!(requeststr = t->getClientMessage()).empty()) {
         try {
-            json clientRequest = json::parse(requeststr);
+            clientRequest = json::parse(requeststr);
+            std::cout << clientRequest.dump(4);
+            std::cout << "reqvType = " + std::to_string(clientRequest["type"].get<int>()) << std::endl;
             switch ((int) clientRequest["type"]) {
                 case 0: { // authentication
                     try{
@@ -112,6 +93,37 @@ int main() {
         catch (std::exception &e) {
             std::cout << e.what();
         }
+        std::cout << "Request completed!" << std::endl;
+    }
+    std::cout << "Connection broken." << std::endl;
+    return nullptr;
+}
+
+int main() {
+
+    TwoSidesListener *t{};
+
+    // try to open connection
+    try {
+        t = new TwoSidesListener(SERV_PORT, DB_IP_ADDRESS, DB_PORT);
+    }
+    catch (std::exception &e) {
+        std::cout << e.what() << std::endl;
+        return 1;
+    }
+
+    t->startListening();
+    std::cout << "Starting listening..." << std::endl;
+
+    while (true) {
+        std::cout << "Waiting for clients..." << std::endl;
+        t->acceptClient();
+        std::cout << "Client found" << std::endl;
+
+        pthread_t pthr;
+        pthread_create(&pthr, NULL, clientHandling, (void *)t);
+
+
     }
 
     delete t;

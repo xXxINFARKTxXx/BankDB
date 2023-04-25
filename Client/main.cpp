@@ -20,7 +20,7 @@ int main(int argc, char const* argv[])
                      "Close debit account........................3" << std::endl <<
                      "Get information about all debit accounts...4" << std::endl <<
                      "Get information about bank account.........5" << std::endl <<
-                     "Exit...6" << std::endl <<
+                     "Exit.......................................6" << std::endl <<
                      "Choose option: ";
         std::cin >> option;
 
