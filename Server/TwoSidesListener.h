@@ -15,6 +15,7 @@
 #include <stdexcept>
 #include <pqxx/pqxx>
 #include <pqxx/connection>
+#include <pthread.h>
 
 #define BUFLEN 16384
 
@@ -22,7 +23,9 @@ struct TwoSidesListener {
 
     explicit TwoSidesListener(unsigned port, const std::string &dataBaseIP,
                                                 unsigned databasePort);
-    void findClient();
+    void acceptClient();
+
+    void startListening();
 
     std::string getClientMessage();
 

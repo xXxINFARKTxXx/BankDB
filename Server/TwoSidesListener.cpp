@@ -37,10 +37,7 @@ TwoSidesListener::TwoSidesListener(const unsigned port, const std::string &dataB
     }
 }
 
-void TwoSidesListener::findClient() {
-    if (listen(server_fd, 3) < 0) {
-        throw std::runtime_error("Error listening\n");
-    }
+void TwoSidesListener::acceptClient() {
     if ((new_socket
                  = accept(server_fd, (struct sockaddr *) &address,
                           (socklen_t *) &addrlen))
@@ -48,6 +45,7 @@ void TwoSidesListener::findClient() {
         throw std::runtime_error("Error accepting\n");
     }
 }
+
 
 std::string TwoSidesListener::getClientMessage() {
     char tempBuffer[BUFLEN]{};
@@ -68,4 +66,10 @@ TwoSidesListener::~TwoSidesListener() {
     shutdown(server_fd, SHUT_RDWR);
 
     delete pgsql;
+}
+
+void TwoSidesListener::startListening() {
+    if (listen(server_fd, 3) < 0) {
+        throw std::runtime_error("Error listening\n");
+    }
 }

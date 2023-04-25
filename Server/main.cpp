@@ -7,6 +7,10 @@
 
 using json = nlohmann::json;
 
+void clientHandling() {
+
+}
+
 int main() {
     TwoSidesListener *t{};
     try {
@@ -17,17 +21,21 @@ int main() {
         return 1;
     }
 
-    t->findClient();
+    t->startListening();
+    std::cout << "Starting listening..." << std::endl;
+    t->acceptClient();
+    std::cout << "Client found" << std::endl;
 
     while (true) {
         std::string requeststr = t->getClientMessage();
         if(requeststr.empty()) {
-            t->findClient();
+            std::cout << "Connection broken." << std::endl;
+            std::cout << "Waiting for clients..." << std::endl;
+            t->acceptClient();
+            std::cout << "Client found" << std::endl;
         } else
         try {
-//            std::cout << std::endl << "\"_" << requeststr << "_\""  << std::endl;
             json clientRequest = json::parse(requeststr);
-
             switch ((int) clientRequest["type"]) {
                 case 0: { // authentication
                     try{

@@ -26,7 +26,7 @@ int main(int argc, char const* argv[])
 
         switch (option) {
             case 1: {
-                Interactor::conductTransfere(user, contr);
+                Interactor::conductTransfer(user, contr);
                 break;
             }
             case 2: {
