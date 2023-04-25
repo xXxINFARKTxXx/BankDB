@@ -262,9 +262,7 @@ std::string RequestManager::getDebitAccsInfo(json &clientRequest, TwoSidesListen
         i++;
     }
 
-    pListener->sendClientMessage(answer.dump());
-
-    return std::string{};
+    return answer.dump();
 }
 
 std::string RequestManager::getBankAccInfo(json &clientRequest, TwoSidesListener *pListener) {
@@ -292,7 +290,5 @@ std::string RequestManager::getBankAccInfo(json &clientRequest, TwoSidesListener
             {"email",                   (res.begin() + 13).as<std::string>()}
     };
 
-    pListener->sendClientMessage(answer.dump());
-
-    return std::string{};
+    return answer.dump();
 }

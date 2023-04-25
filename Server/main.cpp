@@ -7,18 +7,26 @@
 
 using json = nlohmann::json;
 
-void* clientHandling(void* pListener) {
-    auto *t = (TwoSidesListener*) pListener;
+struct threadData {
+    TwoSidesListener* pListener;
+    int clientDescriptor;
+};
+
+void* clientHandling(void* thrd) {
+    auto t = ((threadData*)thrd)->pListener;
+    auto connfd = ((threadData*)thrd)->clientDescriptor;
+
     json clientRequest{};
     std::string requeststr{};
-    while(!(requeststr = t->getClientMessage()).empty()) {
+
+    while(!(requeststr = t->getClientMessage(connfd)).empty()) {
         try {
             clientRequest = json::parse(requeststr);
             std::cout << clientRequest.dump(4) << std::endl;
             switch ((int) clientRequest["type"]) {
                 case 0: { // authentication
                     try{
-                        t->sendClientMessage(RequestManager::authCheck(clientRequest, t));
+                        t->sendClientMessage(RequestManager::authCheck(clientRequest, t), connfd);
                     }
                     catch (std::exception &e) {
                         std::cout << "0:   " << e.what();
@@ -28,7 +36,7 @@ void* clientHandling(void* pListener) {
                 }
                 case 1: { // registration
                     try{
-                        t->sendClientMessage(RequestManager::registration(clientRequest, t));
+                        t->sendClientMessage(RequestManager::registration(clientRequest, t), connfd);
                     }
                     catch (std::exception &e) {
                         std::cout << "1:   " << e.what();
@@ -38,7 +46,7 @@ void* clientHandling(void* pListener) {
                 }
                 case 2: { // conduct transfer
                     try{
-                        t->sendClientMessage(RequestManager::conductTranfer(clientRequest, t));
+                        t->sendClientMessage(RequestManager::conductTranfer(clientRequest, t), connfd);
                     }
                     catch (std::exception &e) {
                         std::cout << "2:   " << e.what();
@@ -48,7 +56,7 @@ void* clientHandling(void* pListener) {
                 }
                 case 3: { // open new debit account
                     try{
-                        t->sendClientMessage(RequestManager::createDebitAcc(clientRequest, t));
+                        t->sendClientMessage(RequestManager::createDebitAcc(clientRequest, t), connfd);
                     }
                     catch (std::exception &e) {
                         std::cout << "3:   " << e.what();
@@ -58,7 +66,7 @@ void* clientHandling(void* pListener) {
                 }
                 case 4: { // close debit account
                     try{
-                        t->sendClientMessage(RequestManager::deleteDebitAcc(clientRequest, t));
+                        t->sendClientMessage(RequestManager::deleteDebitAcc(clientRequest, t), connfd);
                     }
                     catch (std::exception &e) {
                         std::cout << "4:   " << e.what();
@@ -68,7 +76,7 @@ void* clientHandling(void* pListener) {
                 }
                 case 5: { // get information about debit accounts
                     try{
-                        t->sendClientMessage(RequestManager::getDebitAccsInfo(clientRequest, t));
+                        t->sendClientMessage(RequestManager::getDebitAccsInfo(clientRequest, t), connfd);
                     }
                     catch (std::exception &e) {
                         std::cout << "5:   " << e.what();
@@ -78,7 +86,7 @@ void* clientHandling(void* pListener) {
                 }
                 case 6: { // get information about bank account
                     try{
-                        t->sendClientMessage(RequestManager::getBankAccInfo(clientRequest, t));
+                        t->sendClientMessage(RequestManager::getBankAccInfo(clientRequest, t), connfd);
                     }
                     catch (std::exception &e) {
                         std::cout << "6:   " << e.what();
@@ -93,12 +101,13 @@ void* clientHandling(void* pListener) {
         }
         std::cout << "Request completed!" << std::endl;
     }
+
+//    t->closeConnectionfd(connfd);
     std::cout << "Connection broken." << std::endl;
     return nullptr;
 }
 
 int main() {
-
     TwoSidesListener *t{};
 
     // try to open connection
@@ -109,18 +118,31 @@ int main() {
         std::cout << e.what() << std::endl;
         return 1;
     }
+    threadData thrd{t, 0};
 
     t->startListening();
     std::cout << "Starting listening..." << std::endl;
 
     while (true) {
         std::cout << "Waiting for clients..." << std::endl;
-        t->acceptClient();
+        thrd.clientDescriptor = t->acceptClient();
         std::cout << "Client found" << std::endl;
 
-        clientHandling(t);
+        pthread_t thr;
+        pthread_create(&thr, NULL, clientHandling, &thrd);
     }
 
     delete t;
     return 0;
 }
+
+/*
+ y
+RZ49rXZuKtjycoPI9Ca1
+9SOpaTtxDErHlDuPsjHg
+
+y
+12345678901234567890
+12345678901234567890
+ 
+ * */

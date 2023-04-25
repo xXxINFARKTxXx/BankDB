@@ -37,31 +37,36 @@ TwoSidesListener::TwoSidesListener(const unsigned port, const std::string &dataB
     }
 }
 
-void TwoSidesListener::acceptClient() {
+int TwoSidesListener::acceptClient() {
+    int new_socket{};
     if ((new_socket
                  = accept(server_fd, (struct sockaddr *) &address,
                           (socklen_t *) &addrlen))
         < 0) {
         throw std::runtime_error("Error accepting\n");
     }
+    client_sockets.insert(new_socket);
+    return new_socket;
 }
 
 
-std::string TwoSidesListener::getClientMessage() {
+std::string TwoSidesListener::getClientMessage(int client_socket) {
     char tempBuffer[BUFLEN]{};
-    if (read(new_socket, tempBuffer, BUFLEN) < 0)
+    if (read(client_socket, tempBuffer, BUFLEN) < 0)
         throw std::runtime_error("Error reading\n");
 
     return std::string{tempBuffer};
 }
 
-void TwoSidesListener::sendClientMessage(const std::string &hello) const noexcept {
-    send(new_socket, hello.c_str(), hello.length(), 0);
+void TwoSidesListener::sendClientMessage(const std::string &hello, int client_socket) const noexcept {
+    send(client_socket, hello.c_str(), hello.length(), 0);
 }
 
 TwoSidesListener::~TwoSidesListener() {
-    // closing the connected socket
-    close(new_socket);
+    // closing the connected sockets
+    for(auto i : client_sockets) {
+        close(i);
+    }
     // closing the listening socket
     shutdown(server_fd, SHUT_RDWR);
 
@@ -73,3 +78,4 @@ void TwoSidesListener::startListening() {
         throw std::runtime_error("Error listening\n");
     }
 }
+

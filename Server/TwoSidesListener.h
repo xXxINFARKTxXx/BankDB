@@ -16,6 +16,7 @@
 #include <pqxx/pqxx>
 #include <pqxx/connection>
 #include <pthread.h>
+#include <set>
 
 #define BUFLEN 16384
 
@@ -23,13 +24,18 @@ struct TwoSidesListener {
 
     explicit TwoSidesListener(unsigned port, const std::string &dataBaseIP,
                                                 unsigned databasePort);
-    void acceptClient();
+    int acceptClient(); // return descriptor of connection
 
     void startListening();
 
-    std::string getClientMessage();
+    std::string getClientMessage(int client_socket);
 
-    void sendClientMessage(const std::string &hello) const noexcept;
+    void sendClientMessage(const std::string &hello, int client_socket) const noexcept;
+
+    void closeConnectionfd(int connfd) {
+        client_sockets.erase(connfd);
+        close(connfd);
+    }
 
     pqxx::connection* getDatabaseConnection() {return pgsql;}
 
@@ -37,7 +43,8 @@ struct TwoSidesListener {
 
 private:
     // client connection
-    int server_fd{}, new_socket{};
+    int server_fd{};
+    std::set<int> client_sockets;
     struct sockaddr_in address{};
     int opt{};
     int addrlen{};
