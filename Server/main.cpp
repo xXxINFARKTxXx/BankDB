@@ -4,7 +4,6 @@
 
 #include "TwoSidesListener.h"
 #include "RequestManager.h"
-#include <pthread.h>
 
 using json = nlohmann::json;
 
@@ -15,8 +14,7 @@ void* clientHandling(void* pListener) {
     while(!(requeststr = t->getClientMessage()).empty()) {
         try {
             clientRequest = json::parse(requeststr);
-            std::cout << clientRequest.dump(4);
-            std::cout << "reqvType = " + std::to_string(clientRequest["type"].get<int>()) << std::endl;
+            std::cout << clientRequest.dump(4) << std::endl;
             switch ((int) clientRequest["type"]) {
                 case 0: { // authentication
                     try{
@@ -120,10 +118,7 @@ int main() {
         t->acceptClient();
         std::cout << "Client found" << std::endl;
 
-        pthread_t pthr;
-        pthread_create(&pthr, NULL, clientHandling, (void *)t);
-
-
+        clientHandling(t);
     }
 
     delete t;

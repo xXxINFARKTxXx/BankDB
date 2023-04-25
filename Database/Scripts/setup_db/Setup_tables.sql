@@ -9,7 +9,7 @@ CREATE TABLE user_data (
 	passport_id 				bigint CONSTRAINT user_data_passport_id_unique_pkey PRIMARY KEY UNIQUE,
 	first_name 					text NOT NULL,
 	second_name 				text NOT NULL,
-	last_name 					text DEFAULT NULL,
+	last_name 					text NOT NULL,
 	sex 						bool NOT NULL,
 	date_of_birth 				date NOT NULL,
 	place_of_birth 				text NOT NULL,
