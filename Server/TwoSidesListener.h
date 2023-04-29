@@ -22,6 +22,8 @@
 
 struct TwoSidesListener {
 
+    TwoSidesListener() = delete;
+
     explicit TwoSidesListener(unsigned port, const std::string &dataBaseIP,
                                                 unsigned databasePort);
     int acceptClient(); // return descriptor of connection

@@ -26,7 +26,7 @@ CREATE TABLE user_data (
 CREATE TABLE users (
 	user_id 				bigint REFERENCES user_data(passport_id),
 	login 					text CONSTRAINT users_login_uniqueness UNIQUE,
-	password				text DEFAULT random_string(20),
+	password				text DEFAULT random_string(10),
 	date_of_registration 	timestamp DEFAULT NOW()
 );
 

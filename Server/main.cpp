@@ -5,16 +5,13 @@
 #include "TwoSidesListener.h"
 #include "RequestManager.h"
 
+#include <thread>
+
 using json = nlohmann::json;
 
-struct threadData {
-    TwoSidesListener* pListener;
-    int clientDescriptor;
-};
-
-void* clientHandling(void* thrd) {
-    auto t = ((threadData*)thrd)->pListener;
-    auto connfd = ((threadData*)thrd)->clientDescriptor;
+void clientHandling(TwoSidesListener* pListener, int clientDescriptor) {
+    auto t = pListener;
+    auto connfd = clientDescriptor;
 
     json clientRequest{};
     std::string requeststr{};
@@ -64,16 +61,16 @@ void* clientHandling(void* thrd) {
                     }
                     break;
                 }
-                case 4: { // close debit account
-                    try{
-                        t->sendClientMessage(RequestManager::deleteDebitAcc(clientRequest, t), connfd);
-                    }
-                    catch (std::exception &e) {
-                        std::cout << "4:   " << e.what();
-                        exit(1);
-                    }
-                    break;
-                }
+//                case 4: { // close debit account
+//                    try{
+//                        t->sendClientMessage(RequestManager::deleteDebitAcc(clientRequest, t), connfd);
+//                    }
+//                    catch (std::exception &e) {
+//                        std::cout << "4:   " << e.what();
+//                        exit(1);
+//                    }
+//                    break;
+//                }
                 case 5: { // get information about debit accounts
                     try{
                         t->sendClientMessage(RequestManager::getDebitAccsInfo(clientRequest, t), connfd);
@@ -102,9 +99,9 @@ void* clientHandling(void* thrd) {
         std::cout << "Request completed!" << std::endl;
     }
 
-//    t->closeConnectionfd(connfd);
+    t->closeConnectionfd(connfd);
     std::cout << "Connection broken." << std::endl;
-    return nullptr;
+    return;
 }
 
 int main() {
@@ -118,21 +115,21 @@ int main() {
         std::cout << e.what() << std::endl;
         return 1;
     }
-    threadData thrd{t, 0};
 
     t->startListening();
     std::cout << "Starting listening..." << std::endl;
 
     while (true) {
         std::cout << "Waiting for clients..." << std::endl;
-        thrd.clientDescriptor = t->acceptClient();
+        int clientDescriptor = t->acceptClient();
+        if(clientDescriptor < 0) std::cout << "Unable to open connection" << std::endl;
         std::cout << "Client found" << std::endl;
 
-        pthread_t thr;
-        pthread_create(&thr, NULL, clientHandling, &thrd);
+        std::thread(clientHandling, t, clientDescriptor).detach();
     }
 
     delete t;
+    std::cout << "server shutdown";
     return 0;
 }
 
@@ -144,5 +141,5 @@ RZ49rXZuKtjycoPI9Ca1
 y
 12345678901234567890
 12345678901234567890
- 
+
  * */

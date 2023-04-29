@@ -9,7 +9,7 @@ int main(int argc, char const* argv[])
     ConnControler contr(SERVER_PORT, SERVER_IP_ADDRESS);
 
     json user = Interactor::welcome(contr);
-
+    
     if(user.empty()) return 0;
 
     for(;;) {
@@ -17,35 +17,43 @@ int main(int argc, char const* argv[])
         std::cout << std::endl << std::endl << "Menu" << std::endl <<
                      "Conduct transfer...........................1" << std::endl <<
                      "Open new debit acc.........................2" << std::endl <<
-                     "Close debit account........................3" << std::endl <<
-                     "Get information about all debit accounts...4" << std::endl <<
-                     "Get information about bank account.........5" << std::endl <<
-                     "Exit.......................................6" << std::endl <<
+//                     "Close debit account........................3" << std::endl <<
+                     "Get information about all debit accounts...3" << std::endl <<
+                     "Get information about bank account.........4" << std::endl <<
+                     "Exit.......................................5" << std::endl <<
                      "Choose option: ";
         std::cin >> option;
 
         switch (option) {
             case 1: {
                 Interactor::conductTransfer(user, contr);
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 break;
             }
             case 2: {
                 Interactor::createAcc(user, contr);
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 break;
             }
+//            case 3: {
+//                Interactor::deleteDebitAcc(user, contr);
+//                break;
+//            }
             case 3: {
-                Interactor::deleteDebitAcc(user, contr);
+                Interactor::getDebitAccsInfo(user, contr);
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 break;
             }
             case 4: {
-                Interactor::getDebitAccsInfo(user, contr);
+                Interactor::getAccountInfo(user, contr);
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
                 break;
             }
             case 5: {
-                Interactor::getAccountInfo(user, contr);
-                break;
-            }
-            case 6: {
                 std::cout << "See ya!\n";
                 return 0;
             }
