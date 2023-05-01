@@ -212,6 +212,31 @@
       <height>561</height>
      </rect>
     </property>
+    <column>
+     <property name="text">
+      <string>Number of transaction</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Money amount</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Source account</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Destination account</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Date and time of transaction</string>
+     </property>
+    </column>
    </widget>
    <widget class="QTableWidget" name="tableWidget_accountList">
     <property name="geometry">
@@ -303,7 +328,7 @@
   </action>
   <action name="actionCloseDebitAccount">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
     <string>Close debit account</string>
@@ -311,7 +336,7 @@
   </action>
   <action name="actionShow_transactionHistory">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="text">
     <string>Show transaction history</string>

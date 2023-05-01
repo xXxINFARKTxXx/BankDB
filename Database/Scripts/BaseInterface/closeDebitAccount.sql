@@ -4,8 +4,42 @@ DROP FUNCTION IF EXISTS registration(   text, text, text, text, bool,
                                         text, text, text, text, text,
                                         text, text, text, text);
 DROP FUNCTION IF EXISTS conductTransfer(bigint, bigint, bigint, bigint);
-DROP FUNCTION IF EXISTS getTransactionsInfo(bigint);
+DROP FUNCTION IF EXISTS getTransactionHistory(bigint);
 
+
+CREATE OR REPLACE FUNCTION getTransactionHistory(uid bigint)
+RETURNS TABLE(
+            tr_id INT,
+            tr_amount DOUBLE PRECISION,
+            tr_from_id BIGINT,
+            tr_to_id BIGINT,
+            tr_date_and_time timestamp
+             )
+AS
+$do$
+    BEGIN
+        RETURN QUERY (SELECT
+            id,
+            amount,
+            from_id,
+            to_id,
+            date_and_time
+        FROM transfers
+        INNER JOIN accounts a ON a.account_id = transfers.to_id
+        WHERE from_id IS NULL AND user_id = uid
+        UNION
+        SELECT
+            id,
+            amount,
+            from_id,
+            to_id,
+            date_and_time
+        FROM transfers
+        INNER JOIN accounts a ON a.account_id = transfers.from_id
+        WHERE from_id IS NOT NULL AND user_id = uid
+        ORDER BY id);
+    END;
+$do$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION closeDebitAccount(account_id bigint, uid bigint)
 RETURNS bool AS
@@ -15,14 +49,14 @@ DECLARE
     UID     bigint  :=  uid;
 BEGIN
     IF EXISTS (
-        SELECT * FROM public.accounts
-        INNER JOIN public.users ON public.accounts.user_id = public.users.user_id
-        WHERE public.accounts.account_id = ACC_ID AND public.users.user_id = UID
+        SELECT accounts.account_id, users.user_id FROM accounts
+        INNER JOIN users ON accounts.user_id = users.user_id
+        WHERE accounts.account_id = ACC_ID AND users.user_id = UID
         )
     THEN
-              DELETE FROM public.accounts
+        DELETE FROM accounts
         WHERE
-            public.accounts.account_id = ACC_ID;
+        accounts.account_id = ACC_ID;
         RETURN true;
     END IF;
     RETURN false;
@@ -54,7 +88,8 @@ END;
 $do$ LANGUAGE plpgsql;
 
 --closeDebitAccount(...) example
-SELECT closeDebitAccount(1000000000000000, 4012440109);
+SELECT closeDebitAccount(1000000000000000,  4012440109);
+commit;
 -- >> takes account_id as bigint, uid as bigint
 -- << returns false on account does not exists
 -- << returns true on successful deleting
@@ -70,3 +105,14 @@ FROM authCheck('login', 'password');
 -- >> takes login as text, password as text
 -- << returns empty table on false
 -- << returns result, uid, name, surname on true
+
+--getTransactionHistory(...) example
+SELECT
+    tr_amount           ::double precision  AS amount,
+    tr_from_id          ::bigint            AS from_id,
+    tr_to_id            ::bigint            AS to_id,
+    tr_date_and_time    ::text              AS date_and_time
+FROM getTransactionHistory(4339392899)
+ORDER BY tr_date_and_time;
+-- >> takes uid
+-- << returns list of transactions bonded with uid's accounts

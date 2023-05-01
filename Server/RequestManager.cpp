@@ -136,12 +136,6 @@ std::string RequestManager::conductTranfer(json &clientRequest, TwoSidesListener
 
     } else { // переводим деньги с одного аккаунта на другой
 
-        for(auto i: accounts) {
-            for (auto j: i)
-                std::cout << j << "\t\t";
-            std::cout << std::endl;
-        }
-
         if (accounts.size() != 2) { // не найден аккаунт откуда и куда будет происходить перевод
             return R"({
                     "result": false,
@@ -208,26 +202,19 @@ std::string RequestManager::createDebitAcc(json &clientRequest, TwoSidesListener
 }
 
 std::string RequestManager::deleteDebitAcc(json &clientRequest, TwoSidesListener *pListener) {
-    pqxx::nontransaction getAccount{*pListener->getDatabaseConnection()};
+    pqxx::work deleteAccount{*pListener->getDatabaseConnection()};
 
-    std::string databaseRequest {"SELECT user_id, account_id FROM accounts "
-                                 "WHERE user_id = " + clientRequest["user_id"].get<std::string>() + " AND " +
-                                 "account_id = " + clientRequest["account_id"].get<std::string>()
+    std::string databaseRequest {"SELECT closeDebitAccount(" + clientRequest["account_id"].get<std::string>() + ", " +
+                                                               clientRequest["user_id"].get<std::string>() + ")"
     };
-    pqxx::result res = getAccount.exec(databaseRequest);
+    pqxx::result res = deleteAccount.exec(databaseRequest);
 
-    getAccount.commit();
+    deleteAccount.commit();
 
-    if(res.empty()) return R"({"result": false})";
-
-    pqxx::work deleteAcc{*pListener->getDatabaseConnection()};
-
-    deleteAcc.exec("DELETE FROM accounts "
-                   "WHERE user_id = " + clientRequest["user_id"].get<std::string>() + " AND " +
-                   "account_id = " + clientRequest["account_id"].get<std::string>());
-    deleteAcc.commit();
-
-    return R"({"result": true})";
+    if(res.begin().begin().as<bool>())
+        return R"({"result": true})";
+    else
+        return R"({"result": false})";
 }
 
 std::string RequestManager::getDebitAccsInfo(json &clientRequest, TwoSidesListener *pListener) {
@@ -292,36 +279,39 @@ std::string RequestManager::getBankAccInfo(json &clientRequest, TwoSidesListener
 
 std::string RequestManager::getTransactionsInfo(json &clientRequest, TwoSidesListener *pListener) {
 
-    pqxx::nontransaction getUserTransactions(*pListener->getDatabaseConnection());
+    pqxx::nontransaction getDebitAccsInfo(*pListener->getDatabaseConnection());
+
+    std::string fieldNames[] {};
 
     json answer = json::array();
 
-    std::string request {
-            "SELECT * FROM transfers "
-            "INNER JOIN accounts a ON a.account_id = transfers.to_id "
-            "WHERE from_id IS NULL AND user_id = " + std::to_string(clientRequest["user_id"].get<long long>()) + " " +
-            "UNION"
-            "SELECT * FROM transfers "
-            "INNER JOIN accounts a ON a.account_id = transfers.from_id "
-            "WHERE from_id IS NOT NULL AND user_id = 4012440109" + std::to_string(clientRequest["user_id"].get<long long>()) + " " +
-            "ORDER BY id "
+    std::string request{
+            "SELECT "
+            "tr_amount           ::double precision  AS amount, "
+            "tr_from_id          ::bigint            AS from_id, "
+            "tr_to_id            ::bigint            AS to_id, "
+            "tr_date_and_time    ::text              AS date_and_time "
+            "FROM getTransactionHistory(" + clientRequest["user_id"].get<std::string>() + ") "
+                                                                                          "ORDER BY tr_date_and_time"
     };
 
-    auto info = getUserTransactions.exec(request);
+    auto info = getDebitAccsInfo.exec(request);
 
-    int i{};
+    int i = 1;
     for(auto row: info) {
-
         json account {
                 {
-                        {"from", (row.begin() + 1).as<std::string>()},
-                        {"to", (row.begin() + 2).as<std::string>()},
-                        {"amount", (row.begin() + 3).as<std::string>()}
+                        {"id", std::to_string(i)},
+                        {"amount", (row.begin() + 0).as<std::string>()},
+                        {"from_id", (row.begin() + 1).is_null() ? "empty" : (row.begin() + 1).as<std::string>()},
+                        {"to_id", (row.begin() + 2).as<std::string>()},
+                        {"date_and_time", (row.begin() + 3).as<std::string>()}
                 }
         };
         answer.insert(answer.end(), account);
         i++;
     }
 
+    std::cout << answer.dump(4);
     return answer.dump();
 }

@@ -1,11 +1,10 @@
 #include "registration.h"
-#include "qstyle.h"
 #include "ui_registration.h"
 #include "login.h"
 #include "ConnControler.h"
 
 #include "nlohmann/json.hpp"
-#include <QMessageBox>>
+#include <QMessageBox>
 
 using json = nlohmann::json;
 

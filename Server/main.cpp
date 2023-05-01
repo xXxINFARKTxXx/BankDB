@@ -97,7 +97,6 @@ void clientHandling(TwoSidesListener* pListener, int clientDescriptor) {
                 }
                 catch (std::exception &e) {
                     std::cout << "7:\t" << e.what();
-                    exit(1);
                 }
                 }
             }
