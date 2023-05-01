@@ -2,7 +2,8 @@
 -- SELECT * FROM users;
 
 SELECT *
-FROM user_data
-INNER JOIN users
-ON user_data.passport_id = users.user_id
-ORDER BY passport_id;
+FROM users
+INNER JOIN accounts
+ON accounts.user_id = users.user_id
+INNER JOIN user_data ud on ud.passport_id = accounts.user_id
+ORDER BY account_id;

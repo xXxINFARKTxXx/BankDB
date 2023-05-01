@@ -49,6 +49,12 @@ struct RequestManager {
      < {"accounts", []}
      */
     static std::string getBankAccInfo(json &clientRequest, TwoSidesListener *pListener);
+
+    /*
+     > {"user_id", long long}
+     < {"transactions", []}
+     */
+    static std::string getTransactionsInfo(json &clientRequest, TwoSidesListener *pListener);
 };
 
 #endif //SERVER_REQUESTMANAGER_H

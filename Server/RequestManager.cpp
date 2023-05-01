@@ -8,17 +8,14 @@ std::string RequestManager::authCheck(json &clientRequest, TwoSidesListener *pLi
 
     pqxx::nontransaction txn(*pListener->getDatabaseConnection());
 
-    std::string request = "SELECT "
-                          "    COUNT(*), "
-                          "    user_id, "
-                          "    first_name, "
-                          "    second_name "
-                          "FROM users "
-                          "INNER JOIN user_data "
-                          "ON users.user_id = user_data.passport_id "
-                          "WHERE login = " + txn.quote(clientRequest["login"].get<std::string>()) +
-                          " AND password = " + txn.quote(clientRequest["password"].get<std::string>()) +
-                          "GROUP BY user_id, first_name, second_name";
+    std::string request =
+            "SELECT "
+                "result::int, "
+                "uid::bigint, "
+                "name::text, "
+                "surname::text "
+            "FROM authCheck(" + txn.quote(clientRequest["login"].get<std::string>()) + ", " +
+                                txn.quote(clientRequest["password"].get<std::string>()) + ")";
 
     pqxx::result res{txn.exec(request)};
     json result{};
@@ -289,6 +286,42 @@ std::string RequestManager::getBankAccInfo(json &clientRequest, TwoSidesListener
             {"address_of_living",        (res.begin() + 12).as<std::string>()},
             {"email",                   (res.begin() + 13).as<std::string>()}
     };
+
+    return answer.dump();
+}
+
+std::string RequestManager::getTransactionsInfo(json &clientRequest, TwoSidesListener *pListener) {
+
+    pqxx::nontransaction getUserTransactions(*pListener->getDatabaseConnection());
+
+    json answer = json::array();
+
+    std::string request {
+            "SELECT * FROM transfers "
+            "INNER JOIN accounts a ON a.account_id = transfers.to_id "
+            "WHERE from_id IS NULL AND user_id = " + std::to_string(clientRequest["user_id"].get<long long>()) + " " +
+            "UNION"
+            "SELECT * FROM transfers "
+            "INNER JOIN accounts a ON a.account_id = transfers.from_id "
+            "WHERE from_id IS NOT NULL AND user_id = 4012440109" + std::to_string(clientRequest["user_id"].get<long long>()) + " " +
+            "ORDER BY id "
+    };
+
+    auto info = getUserTransactions.exec(request);
+
+    int i{};
+    for(auto row: info) {
+
+        json account {
+                {
+                        {"from", (row.begin() + 1).as<std::string>()},
+                        {"to", (row.begin() + 2).as<std::string>()},
+                        {"amount", (row.begin() + 3).as<std::string>()}
+                }
+        };
+        answer.insert(answer.end(), account);
+        i++;
+    }
 
     return answer.dump();
 }

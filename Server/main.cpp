@@ -61,16 +61,16 @@ void clientHandling(TwoSidesListener* pListener, int clientDescriptor) {
                     }
                     break;
                 }
-//                case 4: { // close debit account
-//                    try{
-//                        t->sendClientMessage(RequestManager::deleteDebitAcc(clientRequest, t), connfd);
-//                    }
-//                    catch (std::exception &e) {
-//                        std::cout << "4:   " << e.what();
-//                        exit(1);
-//                    }
-//                    break;
-//                }
+                case 4: { // close debit account
+                    try{
+                        t->sendClientMessage(RequestManager::deleteDebitAcc(clientRequest, t), connfd);
+                    }
+                    catch (std::exception &e) {
+                        std::cout << "4:   " << e.what();
+                        exit(1);
+                    }
+                    break;
+                }
                 case 5: { // get information about debit accounts
                     try{
                         t->sendClientMessage(RequestManager::getDebitAccsInfo(clientRequest, t), connfd);
@@ -90,6 +90,15 @@ void clientHandling(TwoSidesListener* pListener, int clientDescriptor) {
                         exit(1);
                     }
                     break;
+                }
+                case 7: {
+                try {
+                    t->sendClientMessage(RequestManager::getTransactionsInfo(clientRequest, t), connfd);
+                }
+                catch (std::exception &e) {
+                    std::cout << "7:\t" << e.what();
+                    exit(1);
+                }
                 }
             }
         }
