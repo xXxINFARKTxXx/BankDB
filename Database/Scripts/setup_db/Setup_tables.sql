@@ -26,7 +26,7 @@ CREATE TABLE user_data (
 CREATE TABLE users (
 	user_id 				bigint REFERENCES user_data(passport_id),
 	login 					text CONSTRAINT users_login_uniqueness UNIQUE,
-	password				text DEFAULT random_string(20),
+	password				text DEFAULT random_string(10),
 	date_of_registration 	timestamp DEFAULT NOW()
 );
 
@@ -36,18 +36,19 @@ START 1000000000000000;
 
 CREATE TABLE accounts (
 	account_id 			bigint CONSTRAINT accounts_account_pkey NOT NULL PRIMARY KEY DEFAULT nextval('accounts_id_seq'),
-	user_id 			bigint REFERENCES user_data(passport_id),
+	user_id 			bigint REFERENCES user_data(passport_id) DEFAULT NULL,
 	deposit 			double precision DEFAULT 0.0,
 	date_of_creating 	timestamp DEFAULT NOW()
 );
 
 CREATE TABLE transfers (
-	id 			serial CONSTRAINT transfers_id_pkey PRIMARY KEY,
+	id 				serial CONSTRAINT transfers_id_pkey PRIMARY KEY,
 	-- from_id(NULL) -> to_id | amount > 0: "add money to account №to_id"
 	-- from_id(NULL) -> to_id | amount < 0: "get money from account №to_id"
-	from_id 	bigint REFERENCES accounts(account_id),
-	to_id 		bigint CONSTRAINT transfers_to_id_not_null NOT NULL REFERENCES accounts(account_id),
-	amount 		double precision CONSTRAINT transfers_amount_not_null_not_zero NOT NULL CHECK (amount <> 0)
+	from_id 		bigint,
+	to_id 			bigint,
+	amount 			double precision CONSTRAINT transfers_amount_not_null_not_zero NOT NULL CHECK (amount <> 0),
+	date_and_time	timestamp DEFAULT NOW()
 );
 
 

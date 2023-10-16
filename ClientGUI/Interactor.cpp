@@ -219,7 +219,7 @@ void Interactor::createAcc(const json &user, const ConnControler &conContr) {
 void Interactor::getDebitAccsInfo(const json &user, const ConnControler &conContr) {
     conContr.sendMessage(json {{"type", 5}, {"user_id", user["user_id"].get<long long>()}}.dump());
     json answer = json::parse(conContr.getMessage());
-
+    answer.empty();
     if(answer.empty())
         std::cout << "You have no accounts" << std::endl;
     else {
@@ -252,7 +252,7 @@ void Interactor::getAccountInfo(const json &user, const ConnControler &conContr)
     std::cout << "Passport date of expire: \t" << answer["passport_date_of_expire"].get<std::string>()<< std::endl;
     std::cout << "Passport place of issue: \t" << answer["passport_place_of_issue"].get<std::string>()<< std::endl;
     std::cout << "Passport authority: \t\t" << answer["passport_authority"].get<std::string>()<< std::endl;
-    std::cout << "Address of living: \t\t" << answer["address_of_living"].get<std::string>()<< std::endl;
+    std::cout << "Address_of_living: \t\t" << answer["address_of_living"].get<std::string>()<< std::endl;
     std::cout << "Email: \t\t\t\t" << answer["email"].get<std::string>()<< std::endl;
 }
 

@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>826</width>
+    <height>599</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>826</width>
+    <height>599</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>826</width>
+    <height>599</height>
+   </size>
+  </property>
+  <property name="palette">
+   <palette>
+    <active>
+     <colorrole role="PlaceholderText">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>153</red>
+        <green>153</green>
+        <blue>153</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </active>
+    <inactive>
+     <colorrole role="PlaceholderText">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>153</red>
+        <green>153</green>
+        <blue>153</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </inactive>
+    <disabled>
+     <colorrole role="PlaceholderText">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>153</red>
+        <green>153</green>
+        <blue>153</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </disabled>
+   </palette>
+  </property>
+  <property name="windowTitle">
+   <string>MVVM Bank Client</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTableWidget" name="tableWidget_accInfo">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>821</width>
+      <height>561</height>
+     </rect>
+    </property>
+    <row>
+     <property name="text">
+      <string>Name</string>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>Surname</string>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>Last name</string>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>Sex</string>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>Date of birth</string>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>Place of birth</string>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>Country</string>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>Passport date of issue</string>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>Passport date of expire</string>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>Passport place of issue</string>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>Passport authority</string>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>Address of living</string>
+     </property>
+    </row>
+    <row>
+     <property name="text">
+      <string>Email</string>
+     </property>
+    </row>
+    <column>
+     <property name="text">
+      <string>Value</string>
+     </property>
+    </column>
+    <item row="0" column="0">
+     <property name="text">
+      <string/>
+     </property>
+    </item>
+    <item row="1" column="0">
+     <property name="text">
+      <string/>
+     </property>
+    </item>
+    <item row="2" column="0">
+     <property name="text">
+      <string/>
+     </property>
+    </item>
+    <item row="3" column="0">
+     <property name="text">
+      <string/>
+     </property>
+    </item>
+    <item row="4" column="0">
+     <property name="text">
+      <string/>
+     </property>
+    </item>
+    <item row="5" column="0">
+     <property name="text">
+      <string/>
+     </property>
+    </item>
+    <item row="6" column="0">
+     <property name="text">
+      <string/>
+     </property>
+    </item>
+    <item row="7" column="0">
+     <property name="text">
+      <string/>
+     </property>
+    </item>
+    <item row="8" column="0">
+     <property name="text">
+      <string/>
+     </property>
+    </item>
+    <item row="9" column="0">
+     <property name="text">
+      <string/>
+     </property>
+    </item>
+    <item row="10" column="0">
+     <property name="text">
+      <string/>
+     </property>
+    </item>
+    <item row="12" column="0">
+     <property name="text">
+      <string/>
+     </property>
+    </item>
+   </widget>
+   <widget class="QTableWidget" name="tableWidget_transactionHistory">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>821</width>
+      <height>561</height>
+     </rect>
+    </property>
+    <column>
+     <property name="text">
+      <string>Number of transaction</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Money amount</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Source account</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Destination account</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Date and time of transaction</string>
+     </property>
+    </column>
+   </widget>
+   <widget class="QTableWidget" name="tableWidget_accountList">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>821</width>
+      <height>561</height>
+     </rect>
+    </property>
+    <column>
+     <property name="text">
+      <string>Account number</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Deposit</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Date and time of opening</string>
+     </property>
+    </column>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>826</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuManage_Accounts">
+    <property name="title">
+     <string>Manage Accounts</string>
+    </property>
+    <addaction name="actionConductTransfer"/>
+    <addaction name="actionOpenDebitAccount"/>
+    <addaction name="actionCloseDebitAccount"/>
+    <addaction name="separator"/>
+    <addaction name="actionLogOut"/>
+   </widget>
+   <widget class="QMenu" name="menuView_Account_Info">
+    <property name="title">
+     <string>View Account Info</string>
+    </property>
+    <addaction name="actionRefresh_accountList"/>
+    <addaction name="actionShow_userInfo"/>
+    <addaction name="actionShow_transactionHistory"/>
+   </widget>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>About</string>
+    </property>
+    <addaction name="actionAboutProgram"/>
+   </widget>
+   <addaction name="menuManage_Accounts"/>
+   <addaction name="menuView_Account_Info"/>
+   <addaction name="menuAbout"/>
+  </widget>
+  <action name="actionConductTransfer">
+   <property name="text">
+    <string>Conduct transfer</string>
+   </property>
+  </action>
+  <action name="actionOpenDebitAccount">
+   <property name="text">
+    <string>Open debit account</string>
+   </property>
+  </action>
+  <action name="actionRefresh_accountList">
+   <property name="text">
+    <string>Show account list</string>
+   </property>
+  </action>
+  <action name="actionShow_userInfo">
+   <property name="text">
+    <string>Show user info</string>
+   </property>
+  </action>
+  <action name="actionAboutProgram">
+   <property name="text">
+    <string>About Program</string>
+   </property>
+  </action>
+  <action name="actionCloseDebitAccount">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Close debit account</string>
+   </property>
+  </action>
+  <action name="actionShow_transactionHistory">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show transaction history</string>
+   </property>
+  </action>
+  <action name="actionLogOut">
+   <property name="text">
+    <string>Log out</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

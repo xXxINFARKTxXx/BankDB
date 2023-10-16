@@ -1,34 +1,3 @@
-CREATE OR REPLACE FUNCTION random_string(length integer) RETURNS text AS
-$$
-DECLARE
-  chars text[] := '{0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z}';
-  result text := '';
-  i integer := 0;
-BEGIN
-  for i in 1..length loop
-    result := result || chars[1+random()*(array_length(chars, 1)-1)];
-  end loop;
-  return result;
-END;
-$$ LANGUAGE plpgsql;
-
-
-
-CREATE OR REPLACE FUNCTION create_account_by_user_id(
-	USER_ID bigint 
-) 	RETURNS bigint AS 
-$accountNum$
-DECLARE 
-	tmp bigint;
-BEGIN
-	INSERT INTO accounts(USER_ID)
-		VALUES(USER_ID)
-	RETURNING account_id INTO tmp;
-	RETURN tmp;
-END;
-$accountNum$ LANGUAGE plpgsql;
-
-
 DROP FUNCTION IF EXISTS closeDebitAccount(bigint, bigint);
 DROP FUNCTION IF EXISTS authcheck(text,text);
 DROP FUNCTION IF EXISTS registration(   text, text, text, text, bool,
@@ -82,13 +51,12 @@ BEGIN
     IF EXISTS (
         SELECT accounts.account_id, users.user_id FROM accounts
         INNER JOIN users ON accounts.user_id = users.user_id
-        WHERE accounts.account_id = 4339392899 AND users.user_id = 1000000000000154
+        WHERE accounts.account_id = ACC_ID AND users.user_id = UID
         )
     THEN
         DELETE FROM accounts
         WHERE
         accounts.account_id = ACC_ID;
-        COMMIT;
         RETURN true;
     END IF;
     RETURN false;
@@ -118,3 +86,33 @@ BEGIN
     GROUP BY user_id, first_name, second_name);
 END;
 $do$ LANGUAGE plpgsql;
+
+--closeDebitAccount(...) example
+SELECT closeDebitAccount(1000000000000000,  4012440109);
+commit;
+-- >> takes account_id as bigint, uid as bigint
+-- << returns false on account does not exists
+-- << returns true on successful deleting
+
+
+--authcheck(...) example
+SELECT
+    result  ::int,
+    uid     ::bigint,
+    name    ::text,
+    surname ::text
+FROM authCheck('login', 'password');
+-- >> takes login as text, password as text
+-- << returns empty table on false
+-- << returns result, uid, name, surname on true
+
+--getTransactionHistory(...) example
+SELECT
+    tr_amount           ::double precision  AS amount,
+    tr_from_id          ::bigint            AS from_id,
+    tr_to_id            ::bigint            AS to_id,
+    tr_date_and_time    ::text              AS date_and_time
+FROM getTransactionHistory(4339392899)
+ORDER BY tr_date_and_time;
+-- >> takes uid
+-- << returns list of transactions bonded with uid's accounts

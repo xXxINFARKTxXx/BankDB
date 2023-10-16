@@ -8,17 +8,14 @@ std::string RequestManager::authCheck(json &clientRequest, TwoSidesListener *pLi
 
     pqxx::nontransaction txn(*pListener->getDatabaseConnection());
 
-    std::string request = "SELECT "
-                          "    COUNT(*), "
-                          "    user_id, "
-                          "    first_name, "
-                          "    second_name "
-                          "FROM users "
-                          "INNER JOIN user_data "
-                          "ON users.user_id = user_data.passport_id "
-                          "WHERE login = " + txn.quote(clientRequest["login"].get<std::string>()) +
-                          " AND password = " + txn.quote(clientRequest["password"].get<std::string>()) +
-                          "GROUP BY user_id, first_name, second_name";
+    std::string request =
+            "SELECT "
+                "result::int, "
+                "uid::bigint, "
+                "name::text, "
+                "surname::text "
+            "FROM authCheck(" + txn.quote(clientRequest["login"].get<std::string>()) + ", " +
+                                txn.quote(clientRequest["password"].get<std::string>()) + ")";
 
     pqxx::result res{txn.exec(request)};
     json result{};
@@ -139,12 +136,6 @@ std::string RequestManager::conductTranfer(json &clientRequest, TwoSidesListener
 
     } else { // переводим деньги с одного аккаунта на другой
 
-        for(auto i: accounts) {
-            for (auto j: i)
-                std::cout << j << "\t\t";
-            std::cout << std::endl;
-        }
-
         if (accounts.size() != 2) { // не найден аккаунт откуда и куда будет происходить перевод
             return R"({
                     "result": false,
@@ -211,26 +202,19 @@ std::string RequestManager::createDebitAcc(json &clientRequest, TwoSidesListener
 }
 
 std::string RequestManager::deleteDebitAcc(json &clientRequest, TwoSidesListener *pListener) {
-    pqxx::nontransaction getAccount{*pListener->getDatabaseConnection()};
+    pqxx::work deleteAccount{*pListener->getDatabaseConnection()};
 
-    std::string databaseRequest {"SELECT user_id, account_id FROM accounts "
-                                 "WHERE user_id = " + clientRequest["user_id"].get<std::string>() + " AND " +
-                                 "account_id = " + clientRequest["account_id"].get<std::string>()
+    std::string databaseRequest {"SELECT closeDebitAccount(" + clientRequest["account_id"].get<std::string>() + ", " +
+                                                               clientRequest["user_id"].get<std::string>() + ")"
     };
-    pqxx::result res = getAccount.exec(databaseRequest);
+    pqxx::result res = deleteAccount.exec(databaseRequest);
 
-    getAccount.commit();
+    deleteAccount.commit();
 
-    if(res.empty()) return R"({"result": false})";
-
-    pqxx::work deleteAcc{*pListener->getDatabaseConnection()};
-
-    deleteAcc.exec("DELETE FROM accounts "
-                   "WHERE user_id = " + clientRequest["user_id"].get<std::string>() + " AND " +
-                   "account_id = " + clientRequest["account_id"].get<std::string>());
-    deleteAcc.commit();
-
-    return R"({"result": true})";
+    if(res.begin().begin().as<bool>())
+        return R"({"result": true})";
+    else
+        return R"({"result": false})";
 }
 
 std::string RequestManager::getDebitAccsInfo(json &clientRequest, TwoSidesListener *pListener) {
@@ -262,9 +246,7 @@ std::string RequestManager::getDebitAccsInfo(json &clientRequest, TwoSidesListen
         i++;
     }
 
-    pListener->sendClientMessage(answer.dump());
-
-    return std::string{};
+    return answer.dump();
 }
 
 std::string RequestManager::getBankAccInfo(json &clientRequest, TwoSidesListener *pListener) {
@@ -292,7 +274,44 @@ std::string RequestManager::getBankAccInfo(json &clientRequest, TwoSidesListener
             {"email",                   (res.begin() + 13).as<std::string>()}
     };
 
-    pListener->sendClientMessage(answer.dump());
+    return answer.dump();
+}
 
-    return std::string{};
+std::string RequestManager::getTransactionsInfo(json &clientRequest, TwoSidesListener *pListener) {
+
+    pqxx::nontransaction getDebitAccsInfo(*pListener->getDatabaseConnection());
+
+    std::string fieldNames[] {};
+
+    json answer = json::array();
+
+    std::string request{
+            "SELECT "
+            "tr_amount           ::double precision  AS amount, "
+            "tr_from_id          ::bigint            AS from_id, "
+            "tr_to_id            ::bigint            AS to_id, "
+            "tr_date_and_time    ::text              AS date_and_time "
+            "FROM getTransactionHistory(" + clientRequest["user_id"].get<std::string>() + ") "
+                                                                                          "ORDER BY tr_date_and_time"
+    };
+
+    auto info = getDebitAccsInfo.exec(request);
+
+    int i = 1;
+    for(auto row: info) {
+        json account {
+                {
+                        {"id", std::to_string(i)},
+                        {"amount", (row.begin() + 0).as<std::string>()},
+                        {"from_id", (row.begin() + 1).is_null() ? "empty" : (row.begin() + 1).as<std::string>()},
+                        {"to_id", (row.begin() + 2).as<std::string>()},
+                        {"date_and_time", (row.begin() + 3).as<std::string>()}
+                }
+        };
+        answer.insert(answer.end(), account);
+        i++;
+    }
+
+    std::cout << answer.dump(4);
+    return answer.dump();
 }

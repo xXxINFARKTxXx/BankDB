@@ -4,12 +4,12 @@
 #define SERVER_PORT 8080
 #define SERVER_IP_ADDRESS "127.0.0.1"
 
-int main(int argc, char const* argv[])
+int notMainFinctions()
 {
     ConnControler contr(SERVER_PORT, SERVER_IP_ADDRESS);
 
     json user = Interactor::welcome(contr);
-    
+
     if(user.empty()) return 0;
 
     for(;;) {
