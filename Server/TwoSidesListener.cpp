@@ -1,6 +1,3 @@
-//
-// Created by vladimir on 9.4.23.
-//
 #include "TwoSidesListener.h"
 
 TwoSidesListener::TwoSidesListener(const unsigned port, const std::string &dataBaseIP,
