@@ -1,5 +1,5 @@
 //
-// Created by vladimir on 9.4.23..
+// Created by vladimir on 9.4.23
 //
 #include "TwoSidesListener.h"
 
@@ -26,7 +26,7 @@ TwoSidesListener::TwoSidesListener(const unsigned port, const std::string &dataB
         throw std::runtime_error("Bind failed\n");
     }
 
-    std::string params = "dbname=bank user=postgres password=D$vlmu2021 hostaddr=" + dataBaseIP + " port=" +
+    std::string params = "dbname=bank user=postgres password=postgres hostaddr=" + dataBaseIP + " port=" +
             std::to_string(databasePort);
     try {
         // make DB connection
