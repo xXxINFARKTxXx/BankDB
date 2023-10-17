@@ -9,20 +9,20 @@
 
 using json = nlohmann::json;
 
-void clientHandling(TwoSidesListener* pListener, int clientDescriptor) {
+void clientHandling(TwoSidesListener *pListener, int clientDescriptor) {
     auto t = pListener;
     auto connfd = clientDescriptor;
 
     json clientRequest{};
     std::string requeststr{};
 
-    while(!(requeststr = t->getClientMessage(connfd)).empty()) {
+    while (!(requeststr = t->getClientMessage(connfd)).empty()) {
         try {
             clientRequest = json::parse(requeststr);
             std::cout << clientRequest.dump(4) << std::endl;
             switch ((int) clientRequest["type"]) {
                 case 0: { // authentication
-                    try{
+                    try {
                         t->sendClientMessage(RequestManager::authCheck(clientRequest, t), connfd);
                     }
                     catch (std::exception &e) {
@@ -32,7 +32,7 @@ void clientHandling(TwoSidesListener* pListener, int clientDescriptor) {
                     break;
                 }
                 case 1: { // registration
-                    try{
+                    try {
                         t->sendClientMessage(RequestManager::registration(clientRequest, t), connfd);
                     }
                     catch (std::exception &e) {
@@ -42,7 +42,7 @@ void clientHandling(TwoSidesListener* pListener, int clientDescriptor) {
                     break;
                 }
                 case 2: { // conduct transfer
-                    try{
+                    try {
                         t->sendClientMessage(RequestManager::conductTranfer(clientRequest, t), connfd);
                     }
                     catch (std::exception &e) {
@@ -52,7 +52,7 @@ void clientHandling(TwoSidesListener* pListener, int clientDescriptor) {
                     break;
                 }
                 case 3: { // open new debit account
-                    try{
+                    try {
                         t->sendClientMessage(RequestManager::createDebitAcc(clientRequest, t), connfd);
                     }
                     catch (std::exception &e) {
@@ -62,7 +62,7 @@ void clientHandling(TwoSidesListener* pListener, int clientDescriptor) {
                     break;
                 }
                 case 4: { // close debit account
-                    try{
+                    try {
                         t->sendClientMessage(RequestManager::deleteDebitAcc(clientRequest, t), connfd);
                     }
                     catch (std::exception &e) {
@@ -72,7 +72,7 @@ void clientHandling(TwoSidesListener* pListener, int clientDescriptor) {
                     break;
                 }
                 case 5: { // get information about debit accounts
-                    try{
+                    try {
                         t->sendClientMessage(RequestManager::getDebitAccsInfo(clientRequest, t), connfd);
                     }
                     catch (std::exception &e) {
@@ -82,7 +82,7 @@ void clientHandling(TwoSidesListener* pListener, int clientDescriptor) {
                     break;
                 }
                 case 6: { // get information about bank account
-                    try{
+                    try {
                         t->sendClientMessage(RequestManager::getBankAccInfo(clientRequest, t), connfd);
                     }
                     catch (std::exception &e) {
@@ -92,12 +92,12 @@ void clientHandling(TwoSidesListener* pListener, int clientDescriptor) {
                     break;
                 }
                 case 7: {
-                try {
-                    t->sendClientMessage(RequestManager::getTransactionsInfo(clientRequest, t), connfd);
-                }
-                catch (std::exception &e) {
-                    std::cout << "7:\t" << e.what();
-                }
+                    try {
+                        t->sendClientMessage(RequestManager::getTransactionsInfo(clientRequest, t), connfd);
+                    }
+                    catch (std::exception &e) {
+                        std::cout << "7:\t" << e.what();
+                    }
                 }
             }
         }
@@ -130,8 +130,9 @@ int main() {
     while (true) {
         std::cout << "Waiting for clients..." << std::endl;
         int clientDescriptor = t->acceptClient();
-        if(clientDescriptor < 0) std::cout << "Unable to open connection" << std::endl;
-        std::cout << "Client found" << std::endl;
+        if (clientDescriptor < 0)
+            std::cout << "Unable to open connection" << std::endl;
+        else std::cout << "Client found" << std::endl;
 
         std::thread(clientHandling, t, clientDescriptor).detach();
     }

@@ -1,6 +1,3 @@
-//
-// Created by vladimir on 9.4.23
-//
 #include "TwoSidesListener.h"
 
 TwoSidesListener::TwoSidesListener(const unsigned port, const std::string &dataBaseIP,
@@ -12,7 +9,6 @@ TwoSidesListener::TwoSidesListener(const unsigned port, const std::string &dataB
         throw std::runtime_error("Socket failed\n");
     }
 
-    // Forcefully attaching socket to the port
     if (setsockopt(server_fd, SOL_SOCKET,
                    SO_REUSEADDR | SO_REUSEPORT, &opt,
                    sizeof(opt))) {
