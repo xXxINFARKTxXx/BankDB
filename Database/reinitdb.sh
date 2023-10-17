@@ -1,10 +1,16 @@
+PASSWORD=postgres
+MAINTENANCE_DB=postgres
+AIM_DB=bank
+USER=postgres
+
+
 cd Scripts/
-psql -U postgres postgres -f FullyDropDatabase.sql
+PGPASSWORD=$PASSWORD psql -U $USER $MAINTENANCE_DB -f FullyDropDatabase.sql
 cd setup_db/
-psql -U postgres postgres -f CreateDatabase.sql
-psql -U postgres bank -f Setup_base.sql
+PGPASSWORD=$PASSWORD psql -U $USER $MAINTENANCE_DB -f CreateDatabase.sql
+PGPASSWORD=$PASSWORD psql -U $USER $AIM_DB -f Setup_base.sql
 cd ..
 cd DebugScripts
-psql -U postgres bank -f InsertValues.sql
+PGPASSWORD=$PASSWORD psql -U $USER $AIM_DB -f InsertValues.sql
 cd .. 
-cd ..
+cd .

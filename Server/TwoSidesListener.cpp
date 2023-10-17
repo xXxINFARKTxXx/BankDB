@@ -1,5 +1,5 @@
 //
-// Created by vladimir on 9.4.23..
+// Created by vladimir on 9.4.23.
 //
 #include "TwoSidesListener.h"
 

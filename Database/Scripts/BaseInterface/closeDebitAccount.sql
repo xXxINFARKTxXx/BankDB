@@ -88,31 +88,31 @@ END;
 $do$ LANGUAGE plpgsql;
 
 --closeDebitAccount(...) example
-SELECT closeDebitAccount(1000000000000000,  4012440109);
-commit;
+-- SELECT closeDebitAccount(1000000000000000,  4012440109);
+-- commit;
 -- >> takes account_id as bigint, uid as bigint
 -- << returns false on account does not exists
 -- << returns true on successful deleting
 
 
---authcheck(...) example
-SELECT
-    result  ::int,
-    uid     ::bigint,
-    name    ::text,
-    surname ::text
-FROM authCheck('login', 'password');
+--authCheck(...) example
+-- SELECT
+--     result  ::int,
+--     uid     ::bigint,
+--     name    ::text,
+--     surname ::text
+-- FROM authCheck('login', 'password');
 -- >> takes login as text, password as text
 -- << returns empty table on false
 -- << returns result, uid, name, surname on true
 
 --getTransactionHistory(...) example
-SELECT
-    tr_amount           ::double precision  AS amount,
-    tr_from_id          ::bigint            AS from_id,
-    tr_to_id            ::bigint            AS to_id,
-    tr_date_and_time    ::text              AS date_and_time
-FROM getTransactionHistory(4339392899)
-ORDER BY tr_date_and_time;
+-- SELECT
+--     tr_amount           ::double precision  AS amount,
+--     tr_from_id          ::bigint            AS from_id,
+--     tr_to_id            ::bigint            AS to_id,
+--     tr_date_and_time    ::text              AS date_and_time
+-- FROM getTransactionHistory(4339392899)
+-- ORDER BY tr_date_and_time;
 -- >> takes uid
 -- << returns list of transactions bonded with uid's accounts

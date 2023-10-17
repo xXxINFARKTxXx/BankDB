@@ -1,4 +1,4 @@
-INSERT INTO user_data(
+INSERT INTO bank.public.user_data(
     passport_id,
     first_name,
     second_name,
@@ -87,7 +87,7 @@ VALUES
     '11-01-2016', '11-01-2033', 'г. Курск', 'Отделением УФМС России по г. Курск',
     'Россия, г. Чита, Радужная ул., д. 16 кв.210', 'prohor.yurnaev@outlook.com');
 
-INSERT INTO accounts(user_id)
+INSERT INTO bank.public.accounts(user_id)
 VALUES
 (4012440109),
 (4012440109),
@@ -103,7 +103,7 @@ VALUES
 (4961977345),
 (4969727454);
 
-INSERT INTO transfers(from_id, to_id, amount)
+INSERT INTO bank.public.transfers(from_id, to_id, amount)
 VALUES
 (NULL, 1000000000000000, 100000),
 (NULL, 1000000000000011, 100000),
@@ -118,4 +118,4 @@ VALUES
 (NULL, 1000000000000121, 100000),
 (NULL, 1000000000000132, 100000);
 
-UPDATE accounts SET deposit = 100000 WHERE account_id IN (SELECT account_id FROM accounts);
+UPDATE bank.public.accounts SET deposit = 100000 WHERE account_id IN (SELECT account_id FROM bank.public.accounts);
