@@ -12,7 +12,6 @@ TwoSidesListener::TwoSidesListener(const unsigned port, const std::string &dataB
         throw std::runtime_error("Socket failed\n");
     }
 
-    // Forcefully attaching socket to the port
     if (setsockopt(server_fd, SOL_SOCKET,
                    SO_REUSEADDR | SO_REUSEPORT, &opt,
                    sizeof(opt))) {
@@ -26,7 +25,7 @@ TwoSidesListener::TwoSidesListener(const unsigned port, const std::string &dataB
         throw std::runtime_error("Bind failed\n");
     }
 
-    std::string params = "dbname=bank user=postgres password=D$vlmu2021 hostaddr=" + dataBaseIP + " port=" +
+    std::string params = "dbname=bank user=postgres password=postgres hostaddr=" + dataBaseIP + " port=" +
             std::to_string(databasePort);
     try {
         // make DB connection
