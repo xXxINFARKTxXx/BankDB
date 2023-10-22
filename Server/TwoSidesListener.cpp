@@ -1,9 +1,16 @@
 #include "TwoSidesListener.h"
 
+#define DBNAME bank
+#define USER postgres
+#define PASSWORD postgres
+
+#define VALUE(string) #string
+#define TO_LITERAL(string) VALUE(string)
+
 TwoSidesListener::TwoSidesListener(const unsigned port, const std::string &dataBaseIP,
                                    const unsigned databasePort) : opt{1}, addrlen{sizeof(sockaddr_in)},
-                                                                      address{AF_INET, htons(port),
-                                                                              INADDR_ANY} {
+                                                                  address{AF_INET, htons(port),
+                                                                          INADDR_ANY} {
     // Creating socket file descriptor
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         throw std::runtime_error("Socket failed\n");
@@ -22,7 +29,9 @@ TwoSidesListener::TwoSidesListener(const unsigned port, const std::string &dataB
         throw std::runtime_error("Bind failed\n");
     }
 
-    std::string params = "dbname=bank user=postgres password=postgres hostaddr=" + dataBaseIP + " port=" +
+    std::string params =
+            "dbname=" TO_LITERAL(DBNAME) " user=" TO_LITERAL(USER)
+            " password=" TO_LITERAL(PASSWORD) " hostaddr=" + dataBaseIP + " port=" +
             std::to_string(databasePort);
     try {
         // make DB connection
@@ -60,7 +69,7 @@ void TwoSidesListener::sendClientMessage(const std::string &hello, int client_so
 
 TwoSidesListener::~TwoSidesListener() {
     // closing the connected sockets
-    for(auto i : client_sockets) {
+    for (auto i: client_sockets) {
         close(i);
     }
     // closing the listening socket
