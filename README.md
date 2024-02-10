@@ -6,10 +6,10 @@ Libraryies and frameworks:
   - Database: PostgreSQL, PL/PGSQL, bash
 
 Required:
-  -QT6
-  -nlohmann/json
-  -libpqxx
-  -PostgreSQL
+  - QT6
+  - nlohmann/json
+  - libpqxx
+  - PostgreSQL
 
 To run application:
   1) Config and run Database
